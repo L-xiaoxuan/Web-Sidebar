@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* =========================================
+       1. 基础重置与布局
+    ========================================= */
+    body, html { 
+      margin: 0; padding: 0; 
+      width: 100%; height: 100%; 
+      display: flex; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+      background: #f5f5f7; 
+      overflow: hidden; 
+    }
+
+    /* =========================================
+       2. 右侧网页与 Mac 状态栏
+    ========================================= */
+    #content-area { 
+      flex: 1; 
+      min-width: 0; 
+      height: 100%; 
+      display: flex; 
+      flex-direction: column; 
+      position: relative; 
+    }
+
+    /* Mac 风格顶部状态栏 */
+    #current-url-bar { 
+      height: 40px; 
+      background: #f6f6f6; 
+      color: #4b4b4b; 
+      border-bottom: 1px solid #dfdfdf; 
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 20; 
+    }
+    
+    /* Mac 红黄绿交通灯 */
+    .mac-traffic-lights {
+      display: flex;
+      gap: 8px;
+      width: 60px;
+    }
+    .mac-traffic-lights span {
+      width: 12px; height: 12px; 
+      border-radius: 50%; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 900;
+      color: transparent; 
+      transition: all 0.2s;
+    }
+    .mac-traffic-lights:hover span {
+      color: rgba(0,0,0,0.5);
+    }
+    .mac-traffic-lights span:hover {
+      color: rgba(0,0,0,0.9);
+      transform: scale(1.15); 
+    }
+    
+    .mac-close { background: #ff5f56; border: 1px solid #e0443e; }
+    .mac-minimize { background: #ffbd2e; border: 1px solid #dea123; }
+    .mac-maximize { background: #27c93f; border: 1px solid #1aab29; }
+
+    /* 居中的网址文本 */
+    #url-text-content {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+      text-overflow: ellipsis; 
+      white-space: nowrap; 
+      overflow: hidden;
+      margin-right: 60px;
+    }
+
+    #webview-frame { 
+      width: 100%; height: 100%; 
+      border: none; 
+      background: #ffffff; 
+      display: block; 
+    }
+    
+    /* 加载遮罩层 */
+    #loading-overlay { 
+      display: none; position: absolute; 
+      top: 40px; left: 0; width: 100%; height: calc(100% - 40px); 
+      background: rgba(255, 255, 255, 0.7); 
+      backdrop-filter: blur(5px);
+      z-index: 10; 
+      flex-direction: column; justify-content: center; align-items: center; 
+    }
+    .spinner { 
+      width: 36px; height: 36px; 
+      border: 3px solid rgba(0, 120, 212, 0.2); 
+      border-top: 3px solid #0078D4; 
+      border-radius: 50%; 
+      animation: spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite; 
+    }
+    .loading-text { margin-top: 14px; font-size: 13px; color: #444; font-weight: 500;}
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* =========================================
+       3. 侧边栏：液态玻璃
+    ========================================= */
+    #icon-bar { 
+      width: 68px; 
+      height: 100%; 
+      background: linear-gradient(135deg, #e2e2e2 0%, #f4f4f4 100%);
+      border-left: 1px solid rgba(0, 0, 0, 0.05); 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      padding-top: 16px; 
+      box-sizing: border-box; 
+      flex-shrink: 0; 
+      overflow-y: auto; 
+      z-index: 30;
+      box-shadow: -2px 0 10px rgba(0,0,0,0.02);
+    }
+    #icon-bar::-webkit-scrollbar { display: none; }
+
+    /* 基础毛玻璃图标 */
+    .site-icon { 
+      width: 44px; 
+      height: 44px; 
+      border-radius: 14px; 
+      margin-bottom: 16px; 
+      cursor: pointer; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* 升级为更优雅的苹果标准缓动曲线 */
+      padding: 6px; 
+      box-sizing: border-box;
+    }
+    .site-icon:hover { 
+      background: rgba(255, 255, 255, 0.7); 
+      transform: translateY(-2px) scale(1.03); 
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(255, 255, 255, 1);
+    }
+    
+    /* 🚀 【全新重构】Mac 液态玻璃激活样式 */
+    .site-icon.active {
+      background: rgba(255, 255, 255, 0.65); /* 提高透明度让背光透过来 */
+      border-color: rgba(0, 122, 255, 0.45);   /* 极其细腻的半透明原生 Apple 蓝边缘线 */
+      box-shadow: 
+        0 10px 24px rgba(0, 122, 255, 0.18),      /* 底部液态蓝色光影环境散射 */
+        0 2px 6px rgba(0, 122, 255, 0.12),        /* 近场微光锚定 */
+        inset 0 1.5px 2px rgba(255, 255, 255, 1), /* 晶莹剔透的顶部3D高光折射边缘 */
+        inset 0 -3px 8px rgba(0, 122, 255, 0.08); /* 液体色彩向上浸润玻璃内部的纵深感 */
+      transform: translateY(-2px) scale(1.03);    /* 稳固停留在高级的悬浮姿态 */
+    }
+    
+    .site-icon img { 
+      width: 100%; height: 100%; 
+      object-fit: contain; 
+      border-radius: 8px; 
+    }
+    
+    #add-btn { 
+      font-size: 24px; 
+      color: #777; 
+      background: rgba(255, 255, 255, 0.2); 
+      border: 1px dashed rgba(100, 100, 100, 0.3); 
+      box-shadow: none; 
+    }
+    #add-btn:hover { 
+      background: rgba(255, 255, 255, 0.6); 
+      border-color: rgba(100, 100, 100, 0.6); 
+      color: #333;
+    }
+
+    /* =========================================
+       4. 弹窗公共样式 
+    ========================================= */
+    #add-modal, #delete-modal { 
+      display: none; position: fixed; 
+      top: 0; left: 0; width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.3); 
+      backdrop-filter: blur(4px);
+      z-index: 999; justify-content: center; align-items: center; 
+    }
+    .modal-content { 
+      background: rgba(255, 255, 255, 0.85); 
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 24px; 
+      border-radius: 16px; 
+      width: 280px; 
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,1); 
+    }
+    .modal-content input { 
+      width: 100%; box-sizing: border-box; margin-bottom: 12px; 
+      padding: 10px 12px; border: 1px solid rgba(0,0,0,0.1); 
+      border-radius: 8px; outline: none; background: rgba(255,255,255,0.6);
+      transition: all 0.2s;
+    }
+    .modal-content input:focus { 
+      border-color: #0078D4; background: #fff;
+      box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+    }
+    .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+    .modal-btns button { 
+      padding: 8px 16px; border: none; border-radius: 8px; 
+      cursor: pointer; font-weight: 500; transition: all 0.2s;
+    }
+    #save-btn { background: #0078D4; color: white; }
+    #save-btn:hover { background: #006abc; transform: translateY(-1px); }
+    #cancel-btn, #delete-cancel-btn { background: rgba(0,0,0,0.05); color: #555; }
+    #cancel-btn:hover, #delete-cancel-btn:hover { background: rgba(0,0,0,0.1); }
+    #delete-confirm-btn { background: #ff453a; color: white; }
+    #delete-confirm-btn:hover { background: #dd3b32; transform: translateY(-1px); }
+  </style>
+</head>
+<body>
+
+  <div id="content-area">
+    <div id="current-url-bar">
+      <div class="mac-traffic-lights">
+        <span class="mac-close" id="btn-back" title="后退">◀</span>
+        <span class="mac-minimize" id="btn-forward" title="前进">▶</span>
+        <span class="mac-maximize" id="btn-reload" title="刷新">↻</span>
+      </div>
+      <div id="url-text-content">请点击右侧图标加载网页... (右键图标删除)</div>
+    </div>
+    
+    <div id="loading-overlay">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loading-text">正在加载...</div>
+    </div>
+
+    <iframe id="webview-frame" src="" allow="clipboard-read; clipboard-write"></iframe>
+  </div>
+
+  <div id="icon-bar">
+    <div id="site-list"></div>
+    <div class="site-icon" id="add-btn" title="添加新网站">+</div>
+  </div>
+
+  <div id="add-modal">
+    <div class="modal-content">
+      <div style="margin-bottom: 16px; font-size: 16px; font-weight: bold; color: #333;">添加新网站</div>
+      <input type="text" id="new-name" placeholder="网站名称 (如: Kimi AI)" />
+      <input type="text" id="new-url" placeholder="网址 (如: kimi.moonshot.cn)" />
+      <div class="modal-btns">
+        <button id="cancel-btn">取消</button>
+        <button id="save-btn">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="delete-modal">
+    <div class="modal-content">
+      <div style="margin-bottom: 12px; font-size: 16px; font-weight: bold; color: #333;">确认移除</div>
+      <div style="margin-bottom: 20px; font-size: 13px; color: #555; line-height: 1.5;">
+        确定要移除网站 [<span id="delete-target-name" style="font-weight: bold; color: #ff453a;"></span>] 吗？移除后将无法恢复。
+      </div>
+      <div class="modal-btns">
+        <button id="delete-cancel-btn">取消</button>
+        <button id="delete-confirm-btn">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="sidebar.js"></script>
+</body>
+</html>
