@@ -31,3 +31,23 @@ Turn on developer mode: Check the "Developer mode" switch in the upper right cor
 Load project: Click "Load unpacked" in the upper left corner, and select the folder directory you just extracted.
 
 Pin sidebar: Click the extension icon in the upper right corner of the browser, pin Web Sidebar to the sidebar to enjoy an elegant aggregated experience!
+
+- 🔴 **红灯 (◀)**：控制当前内嵌网页**后退**到上一个页面。
+- 🟡 **黄灯 (▶)**：控制当前内嵌网页**前进**到下一个页面。
+- 🟢 **绿灯 (↻)**：强行**刷新**当前内嵌网页，无感重载数据。
+- 🔴 **Red Light (◀)**: Controls the current embedded webpage to **revert** to the previous page.
+- 🟡 **Yellow Light (▶)**: Controls the current embedded webpage to **advance** to the next page.
+- 🟢 **Green light (↻)**: Forcibly **refresh** the currently embedded webpage, no data overload.
+
+### ⚠️ 2. 侧边栏网页无法登录解决办法 / Fixing Sidebar Login Issues (e.g., Gemini 403 Error)
+
+由于 Google Gemini、ChatGPT 等大厂对 `iframe` 内嵌环境有严格的安全防御机制，直接在侧边栏内登录可能会拦截并报错（如 403 错误）。
+
+**【解决方案】**
+***当某些网页无法在侧边栏网页内登录时，请在主网页登录过一次后，再次打开侧边栏内的网站即可，侧边栏会同步登录状态。**
+
+ 
+ ***Due to strict security policies (anti-clickjacking) enforced by platforms like Google Gemini or ChatGPT, signing in directly within an embedded `iframe` may result in a `403 Error` or access denial.***
+
+**【Solution】**
+***If certain webpages cannot be logged into directly within the sidebar, simply log in once via the main browser window/tab. Afterward, reopen or refresh the website inside the sidebar, and the login status will be automatically synchronized.***
