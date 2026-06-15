@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "侧边栏（Web Sidebar）",
+  "version": "1.3",
+  "description": "复刻 Edge 右侧边栏，强制解除网页的 iframe 嵌套限制。",
+  "icons": {
+    "128": "icon.png"
+  },
+  "action": {
+    "default_title": "打开超级底座",
+    "default_icon": {
+      "128": "icon.png"
+    }
+  },
+  "permissions": [
+    "sidePanel",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["iframe_nav.js"],
+      "all_frames": true
+    }
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "remove-frame-headers",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "action": {
+    "default_title": "打开/关闭侧边栏"
+  },
+  "side_panel": {
+    "default_path": "sidebar.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
