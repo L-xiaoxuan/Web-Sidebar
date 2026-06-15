@@ -16,4 +16,18 @@ Recreate the edge sidebar function, add your frequently used webpages or AI webp
 
 载入项目：点击左上角的 “加载解压的扩展程序” (Load unpacked)，选择刚刚解压的文件夹目录。
 
-固定侧边栏：点击浏览器右上角的插件图标，将Web Sidebar 固定到侧边栏，即可开启优雅的 AI 聚合体验！
+固定侧边栏：点击浏览器右上角的插件图标，将Web Sidebar 固定到侧边栏，即可开启优雅的聚合体验！
+
+
+Quick installation (Developer mode)
+As this project pursues absolute purity and freedom, it is not listed in the official store. It is recommended to use the "wild installation" method beloved by geeks:
+
+Clone/Download the project: Click Code -> Download ZIP in the upper right corner of the repository to download the source code and extract it to your local machine.
+
+Open extension management: Enter edge://extensions/ in the Edge browser address bar (input chrome://extensions/ for Chrome).
+
+Turn on developer mode: Check the "Developer mode" switch in the upper right corner of the page.
+
+Load project: Click "Load unpacked" in the upper left corner, and select the folder directory you just extracted.
+
+Pin sidebar: Click the extension icon in the upper right corner of the browser, pin Web Sidebar to the sidebar to enjoy an elegant aggregated experience!
